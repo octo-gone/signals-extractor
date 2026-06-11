@@ -9,6 +9,8 @@ R = TypeVar("R", bound="SignalType")
 
 @total_ordering
 class SignalType:
+    """Immutable typed descriptors representing signal type and it's parameters."""
+
     __slots__ = ["type", "params"]
 
     def __init__(self, type_: str, **params: str | int | float):
@@ -38,6 +40,36 @@ class SignalType:
 
 
 def signal_factory(signal_type: str) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    """
+    Create a decorator that tags a signal factory functio with a signal type and custom equality.
+
+    The returned decorator attaches a `__signal_type__` attribute and overrides
+    `__eq__` to compare based on the signal type. This is useful for comparing instances of
+    `SignalType` with respective signal factory.
+
+    Parameters
+    ----------
+    signal_type : str
+        Identifier for the signal type (e.g., 'rsi_overbought', 'bb_price_bounce_upper'). Will be stored
+        on the decorated function as `__signal_type__`.
+
+    Returns
+    -------
+    Callable[[Callable[P, R]], Callable[P, R]]
+        A decorator that accepts a function and returns a wrapped version with
+        the added attributes.
+
+    Example
+    -------
+    >>> @signal_factory("regime_overlap")
+    ... def REGIME_OVERLAP():
+    ...     return SignalType("regime_overlap")
+    >>> REGIME_OVERLAP.__signal_type__
+    'regime_overlap'
+    >>> REGIME_OVERLAP() == REGIME_OVERLAP
+    True
+    """
+
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:

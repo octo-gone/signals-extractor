@@ -17,21 +17,15 @@ class BatchContext:
     def __init__(
         self,
         data: dict[str, np.ndarray],
-        indicator_calcs: dict[str, IndicatorCalcFunc],
-        signal_calcs: dict[str, SignalCalcFunc],
+        calc_handler: Callable[[IndicatorType | SignalType], IndicatorCalcFunc | SignalCalcFunc],
     ):
         self.data = data
         self._cache: dict[IndicatorType | SignalType, np.ndarray] = {}
-        self._indicator_calcs = indicator_calcs
-        self._signal_calcs = signal_calcs
+        self._calc_handler = calc_handler
 
     def get(self, obj: IndicatorType | SignalType) -> np.ndarray:
         if obj not in self._cache:
-            if obj.type in self._indicator_calcs:
-                return self.set(obj, self._indicator_calcs[obj.type](self, obj))  # type: ignore
-            if obj.type in self._signal_calcs:
-                return self.set(obj, self._signal_calcs[obj.type](self, obj))  # type: ignore
-            raise KeyError(f"No calculator function found for: {obj.type}")
+            return self.set(obj, self._calc_handler(obj)(self, obj))  # type: ignore
         return self._cache[obj]
 
     def set(self, obj: IndicatorType | SignalType, values: np.ndarray) -> np.ndarray:

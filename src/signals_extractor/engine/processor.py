@@ -1,5 +1,7 @@
 """Unified Processor for batch indicator/signal computation."""
 
+from typing import Callable
+
 import numpy as np
 import pandas as pd
 
@@ -62,6 +64,15 @@ class Processor:
         get_req(target)
         return set(out)
 
+    def _calc(
+        self, obj: IndicatorType | SignalType
+    ) -> Callable[[BatchContext, IndicatorType | SignalType], np.ndarray]:
+        if obj.type in self.indicator_calcs:
+            return self.indicator_calcs[obj.type]  # type: ignore
+        if obj.type in self.signal_calcs:
+            return self.signal_calcs[obj.type]  # type: ignore
+        raise KeyError(f"No calculator function found for: {obj.type}")
+
     def calculate(self, df: pd.DataFrame, verbose: bool = False) -> ProcessingResult:
         if verbose:
             print(f"Processing {len(df)} data points...")
@@ -73,7 +84,7 @@ class Processor:
                 raise ValueError(f"Required column '{col}' not found in data")
             data[col] = df[col].to_numpy()
 
-        ctx = BatchContext(data, self.indicator_calcs, self.signal_calcs)
+        ctx = BatchContext(data, self._calc)
         result = ProcessingResult()
 
         for indicator in self.enabled_indicators:

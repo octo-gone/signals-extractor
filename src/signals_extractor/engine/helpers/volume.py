@@ -8,7 +8,7 @@ import numpy as np
 from numba import jit  # type: ignore
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def obv(close: np.ndarray, volume: np.ndarray) -> np.ndarray:
     """Calculate On-Balance Volume."""
     n = len(close)
@@ -26,7 +26,7 @@ def obv(close: np.ndarray, volume: np.ndarray) -> np.ndarray:
     return obv_result
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def accumulation_distribution(close: np.ndarray, high: np.ndarray, low: np.ndarray, volume: np.ndarray) -> np.ndarray:
     """Calculate Accumulation/Distribution Line."""
     n = len(close)
@@ -47,7 +47,7 @@ def accumulation_distribution(close: np.ndarray, high: np.ndarray, low: np.ndarr
     return ad
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def chaikin_money_flow(
     close: np.ndarray, high: np.ndarray, low: np.ndarray, volume: np.ndarray, period: int = 21
 ) -> np.ndarray:

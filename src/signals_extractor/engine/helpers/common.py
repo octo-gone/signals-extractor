@@ -8,7 +8,7 @@ import numpy as np
 from numba import jit  # type: ignore
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def sma(values: np.ndarray, period: int) -> np.ndarray:
     """Numba-optimized Simple Moving Average."""
     n = len(values)
@@ -20,7 +20,7 @@ def sma(values: np.ndarray, period: int) -> np.ndarray:
     return result
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def ema(values: np.ndarray, period: int) -> np.ndarray:
     """Numba-optimized Exponential Moving Average."""
     n = values.shape[0]
@@ -59,7 +59,7 @@ def ema(values: np.ndarray, period: int) -> np.ndarray:
     return out
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def rsi(close: np.ndarray, period: int = 14) -> np.ndarray:
     """Numba-optimized Relative Strength Index."""
     n = len(close)

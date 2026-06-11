@@ -8,7 +8,7 @@ import numpy as np
 from numba import jit  # type: ignore
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def adx(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: int = 14) -> np.ndarray:
     """Numba-optimized Average Directional Index."""
     n = len(high)
@@ -67,7 +67,7 @@ def adx(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: int = 14) 
     return adx_result
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def bollinger_bands(
     close: np.ndarray, period: int = 20, std_dev: float = 2.0
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:

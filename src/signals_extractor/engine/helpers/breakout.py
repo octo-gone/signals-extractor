@@ -8,7 +8,7 @@ import numpy as np
 from numba import jit  # type: ignore
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def find_pivot_points(high: np.ndarray, low: np.ndarray, period: int = 5) -> tuple[np.ndarray, np.ndarray]:
     """Find pivot points (local highs and lows)."""
     n = len(high)
@@ -37,7 +37,7 @@ def find_pivot_points(high: np.ndarray, low: np.ndarray, period: int = 5) -> tup
     return pivots_high, pivots_low
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def donchian_channel(high: np.ndarray, low: np.ndarray, period: int = 20) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Calculate Donchian Channel."""
     n = len(high)
@@ -56,7 +56,7 @@ def donchian_channel(high: np.ndarray, low: np.ndarray, period: int = 20) -> tup
     return upper, middle, lower
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def atr(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: int = 14) -> np.ndarray:
     """Calculate Average True Range."""
     n = len(high)

@@ -9,6 +9,8 @@ R = TypeVar("R", bound="IndicatorType")
 
 @total_ordering
 class IndicatorType:
+    """Immutable typed descriptors representing indicator type and it's parameters."""
+
     __slots__ = ["type", "params"]
 
     def __init__(self, type_: str, **params: str | int | float):
@@ -38,6 +40,36 @@ class IndicatorType:
 
 
 def indicator_factory(indicator_type: str) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    """
+    Create a decorator that tags a indicator factory function with a indicator type and custom equality.
+
+    The returned decorator attaches a `__indicator_type__` attribute and overrides
+    `__eq__` to compare based on the indicator type. This is useful for comparing instances of
+    `IndicatorType` with respective indicator factory.
+
+    Parameters
+    ----------
+    indicator_type : str
+        Identifier for the indicator type (e.g., 'rsi', 'bb_upper'). Will be stored
+        on the decorated function as `__indicator_type__`.
+
+    Returns
+    -------
+    Callable[[Callable[P, R]], Callable[P, R]]
+        A decorator that accepts a function and returns a wrapped version with
+        the added attributes.
+
+    Example
+    -------
+    >>> @indicator_factory("regime")
+    ... def REGIME():
+    ...     return SignalType("regime")
+    >>> REGIME.__indicator_type__
+    'regime'
+    >>> REGIME() == REGIME
+    True
+    """
+
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:

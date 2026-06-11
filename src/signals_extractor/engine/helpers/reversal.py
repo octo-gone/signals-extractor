@@ -9,7 +9,7 @@ from numba import jit  # type: ignore
 
 
 # TODO: split k and d calc
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def stochastic(
     high: np.ndarray, low: np.ndarray, close: np.ndarray, k_period: int = 14, d_period: int = 3
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -31,7 +31,7 @@ def stochastic(
 
 
 # WIP: baseline patterns calculator
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def candlestick_patterns(
     open_price: np.ndarray, high: np.ndarray, low: np.ndarray, close: np.ndarray
 ) -> dict[str, np.ndarray]:

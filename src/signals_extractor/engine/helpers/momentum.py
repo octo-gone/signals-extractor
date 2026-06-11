@@ -8,7 +8,7 @@ import numpy as np
 from numba import jit  # type: ignore
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def roc(close: np.ndarray, period: int = 10) -> np.ndarray:
     """Calculate Rate of Change."""
     n = len(close)
@@ -21,7 +21,7 @@ def roc(close: np.ndarray, period: int = 10) -> np.ndarray:
     return roc_result
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def cci(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: int = 20) -> np.ndarray:
     """Calculate Commodity Channel Index."""
     n = len(close)
@@ -44,7 +44,7 @@ def cci(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: int = 20) 
     return cci_result
 
 
-@jit(nopython=True)  # type: ignore
+@jit(nopython=True, cache=True)  # type: ignore
 def momentum_oscillator(close: np.ndarray, period: int = 10) -> np.ndarray:
     """Calculate Momentum Oscillator."""
     n = len(close)
