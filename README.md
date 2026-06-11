@@ -55,7 +55,7 @@ If you believe that any naming — including function names, variable names, cla
 
 ## Data Requirements
 
-`Processor.calculate()` and `Processor.push()` expect OHLCV data.
+`Processor.calculate()` expect OHLCV data.
 
 ### Required columns
 
@@ -67,7 +67,7 @@ If you believe that any naming — including function names, variable names, cla
 | `close` | Closing price |
 | `volume` | Traded volume |
 
-Only the columns needed by your enabled plan are read from the DataFrame (e.g. `Signals.RSI_OVERBOUGHT` needs only `close`).
+> **In plans:** Required columns will be calculated from enabled indicators/signals (e.g. `Signals.RSI_OVERBOUGHT` needs only `close`).
 
 ### Example data
 
@@ -120,7 +120,7 @@ print(above.values.tolist())
 
 ### Inspecting dependencies
 
-`processor.dependencies(...)` inspect the dependency graph for a target type, uses provided specs to processor (or default).
+`processor.dependencies(...)` inspect the dependency graph for a target type (uses provided specs or default).
 
 ```python
 from signals_extractor import Processor, Signals
