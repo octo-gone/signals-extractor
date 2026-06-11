@@ -52,18 +52,50 @@ class Processor:
         """Retrieve all indicator/signal dependencies, including dependencies' dependencies and so on."""
         out = []
 
-        def get_req(obj: IndicatorType | SignalType) -> None:
-            if isinstance(obj, SignalType):
-                for parent_obj in self.signal_specs[obj.type].resolve(obj):
-                    out.append(parent_obj)
-                    get_req(parent_obj)
-            else:
-                for parent_obj in self.indicator_specs[obj.type].resolve(obj):
-                    out.append(parent_obj)
-                    get_req(parent_obj)
+        def collect(obj: IndicatorType | SignalType) -> None:
+            spec = (
+                self.signal_specs.get(obj.type) if isinstance(obj, SignalType) else self.indicator_specs.get(obj.type)
+            )
+            if spec is None:
+                return
 
-        get_req(target)
+            for dep in spec.resolve(obj):
+                out.append(dep)
+                collect(dep)
+
+        collect(target)
         return set(out)
+
+    def required_columns(self, targets: list[IndicatorType | SignalType] | None = None) -> set[str]:
+        """Collect all dataframe columns required by the enabled indicators/signals and their dependencies."""
+        if targets is None:
+            targets = [*self.enabled_indicators, *self.enabled_signals]
+
+        required: set[str] = set()
+
+        def collect(obj: IndicatorType | SignalType) -> None:
+            spec = (
+                self.indicator_specs.get(obj.type)
+                if isinstance(obj, IndicatorType)
+                else self.signal_specs.get(obj.type)
+            )
+            if spec is None:
+                return
+
+            required.update(spec.inputs)
+            for dep in spec.resolve(obj):
+                collect(dep)
+
+        for target in targets:
+            collect(target)
+
+        return required
+
+    def validate_columns(self, df: pd.DataFrame) -> None:
+        """Ensure the input frame contains every column required by the configured dependency graph."""
+        missing = sorted(self.required_columns() - set(df.columns))
+        if missing:
+            raise ValueError(f"Required column(s) not found in data: {', '.join(missing)}")
 
     def _calc(
         self, obj: IndicatorType | SignalType
@@ -80,11 +112,10 @@ class Processor:
         if verbose:
             print(f"Processing {len(df)} data points...")
 
+        self.validate_columns(df)
+
         data: dict[str, np.ndarray] = {}
-        needed = ["open", "high", "low", "close", "volume"]
-        for col in needed:
-            if col not in df.columns:
-                raise ValueError(f"Required column '{col}' not found in data")
+        for col in self.required_columns():
             data[col] = df[col].to_numpy()
 
         ctx = BatchContext(data, self._calc)

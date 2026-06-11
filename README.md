@@ -51,13 +51,14 @@ If you believe that any naming — including function names, variable names, cla
 | `IndicatorType` / `SignalType` | Immutable typed descriptors used internally |
 | `Result` / `ProcessingResult` | Output containers returned from `calculate` |
 | `indicator_factory` / `signal_factory` | Decorators for custom factories |
-| `Processor.dependencies(...)` | Inspect dependency dependencies for a target type |
+| `processor.dependencies(...)` | Inspect dependency dependencies for a target type |
+| `processor.required_columns()` | Inspect required columns for provided indicators/signals/specs/calculators |
 
 ## Data Requirements
 
-`Processor.calculate()` expect OHLCV data.
+`processor.calculate(...)` expect OHLCV data. Required columns will be calculated from enabled indicators/signalsspecs/calculator via `processor.required_columns()` (e.g. `Signals.RSI_OVERBOUGHT` needs only `close`).
 
-### Required columns
+### Commonly used columns
 
 | Column | Description |
 |--------|-------------|
@@ -67,7 +68,6 @@ If you believe that any naming — including function names, variable names, cla
 | `close` | Closing price |
 | `volume` | Traded volume |
 
-> **In plans:** Required columns will be calculated from enabled indicators/signals (e.g. `Signals.RSI_OVERBOUGHT` needs only `close`).
 
 ### Example data
 
