@@ -64,9 +64,14 @@ def _derive_sma_death_cross(ctx: BatchContext, signal: SignalType) -> np.ndarray
     return ctx.set(signal, ((ma_short < ma_long) & (roll(ma_short, 1) >= roll(ma_long, 1))).astype(int))
 
 
-def _derive_ema_crossover(ctx: BatchContext, signal: SignalType) -> np.ndarray:
+def _derive_ema_golden_cross(ctx: BatchContext, signal: SignalType) -> np.ndarray:
     ema_short, ema_long = _deps(ctx, signal)
     return ctx.set(signal, ((ema_short > ema_long) & (roll(ema_short, 1) <= roll(ema_long, 1))).astype(int))
+
+
+def _derive_ema_death_cross(ctx: BatchContext, signal: SignalType) -> np.ndarray:
+    ema_short, ema_long = _deps(ctx, signal)
+    return ctx.set(signal, ((ema_short < ema_long) & (roll(ema_short, 1) >= roll(ema_long, 1))).astype(int))
 
 
 def _derive_macd_crossover_bullish(ctx: BatchContext, signal: SignalType) -> np.ndarray:
@@ -158,6 +163,14 @@ def _derive_rsi_oversold(ctx: BatchContext, signal: SignalType) -> np.ndarray:
     rsi_values = _deps(ctx, signal)[0]
     threshold = int(signal.params.get("threshold", 30))
     return ctx.set(signal, (rsi_values < threshold).astype(int))
+
+
+def _derive_rsi_bullish_divergence(ctx: BatchContext, signal: SignalType) -> np.ndarray:
+    rsi_values = _deps(ctx, signal)[0]
+    close = ctx.data["close"]
+    price_lows = np.minimum.accumulate(close)
+    rsi_lows = np.minimum.accumulate(rsi_values)
+    return ctx.set(signal, ((close == price_lows) & (rsi_values > rsi_lows)).astype(int))
 
 
 def _derive_rsi_bearish_divergence(ctx: BatchContext, signal: SignalType) -> np.ndarray:
@@ -303,7 +316,8 @@ SIGNALS_CALCS: dict[str, SignalCalcFunc] = {
     "price_below_sma": _derive_price_below_sma,
     "sma_golden_cross": _derive_sma_golden_cross,
     "sma_death_cross": _derive_sma_death_cross,
-    "ema_crossover": _derive_ema_crossover,
+    "ema_golden_cross": _derive_ema_golden_cross,
+    "ema_death_cross": _derive_ema_death_cross,
     "macd_crossover_bullish": _derive_macd_crossover_bullish,
     "macd_crossover_bearish": _derive_macd_crossover_bearish,
     "macd_histogram_positive": _derive_macd_histogram_positive,
@@ -313,13 +327,14 @@ SIGNALS_CALCS: dict[str, SignalCalcFunc] = {
     "macd_histogram_reversal_positive": _derive_macd_histogram_reversal_positive,
     "macd_histogram_reversal_negative": _derive_macd_histogram_reversal_negative,
     "adx_trend_strength": _derive_adx_trend_strength,
-    "price_bounce_upper_bb": _derive_price_bounce_upper_bb,
-    "price_bounce_lower_bb": _derive_price_bounce_lower_bb,
-    "price_break_upper_bb": _derive_price_break_upper_bb,
-    "price_break_lower_bb": _derive_price_break_lower_bb,
+    "bb_price_bounce_upper": _derive_price_bounce_upper_bb,
+    "bb_price_bounce_lower": _derive_price_bounce_lower_bb,
+    "bb_price_break_upper": _derive_price_break_upper_bb,
+    "bb_price_break_lower": _derive_price_break_lower_bb,
     "bb_width_breakout": _derive_bb_width_breakout,
     "rsi_overbought": _derive_rsi_overbought,
     "rsi_oversold": _derive_rsi_oversold,
+    "rsi_bullish_divergence": _derive_rsi_bullish_divergence,
     "rsi_bearish_divergence": _derive_rsi_bearish_divergence,
     "stoch_overbought": _derive_stoch_overbought,
     "stoch_oversold": _derive_stoch_oversold,

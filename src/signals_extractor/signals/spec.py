@@ -24,8 +24,15 @@ SIGNALS_SPECS: dict[str, Spec] = {
             _dep(Indicators.SMA, period="long"),
         ),
     ),
-    "ema_crossover": Spec(
-        "ema_crossover",
+    "ema_golden_cross": Spec(
+        "ema_golden_cross",
+        depends=(
+            _dep(Indicators.EMA, period="short"),
+            _dep(Indicators.EMA, period="long"),
+        ),
+    ),
+    "ema_death_cross": Spec(
+        "ema_death_cross",
         depends=(
             _dep(Indicators.EMA, period="short"),
             _dep(Indicators.EMA, period="long"),
@@ -70,23 +77,23 @@ SIGNALS_SPECS: dict[str, Spec] = {
         depends=(_dep(Indicators.MACD_HISTOGRAM, short="short", long="long", signal="signal"),),
     ),
     "adx_trend_strength": Spec("adx_trend_strength", depends=(_dep(Indicators.ADX, period="period"),)),
-    "price_bounce_upper_bb": Spec(
-        "price_bounce_upper_bb",
+    "bb_price_bounce_upper": Spec(
+        "bb_price_bounce_upper",
         ("close",),
         depends=(_dep(Indicators.BB_UPPER, period="period", std_dev="std_dev"),),
     ),
-    "price_bounce_lower_bb": Spec(
-        "price_bounce_lower_bb",
+    "bb_price_bounce_lower": Spec(
+        "bb_price_bounce_lower",
         ("close",),
         depends=(_dep(Indicators.BB_LOWER, period="period", std_dev="std_dev"),),
     ),
-    "price_break_upper_bb": Spec(
-        "price_break_upper_bb",
+    "bb_price_break_upper": Spec(
+        "bb_price_break_upper",
         ("close",),
         depends=(_dep(Indicators.BB_UPPER, period="period", std_dev="std_dev"),),
     ),
-    "price_break_lower_bb": Spec(
-        "price_break_lower_bb",
+    "bb_price_break_lower": Spec(
+        "bb_price_break_lower",
         ("close",),
         depends=(_dep(Indicators.BB_LOWER, period="period", std_dev="std_dev"),),
     ),
@@ -96,6 +103,11 @@ SIGNALS_SPECS: dict[str, Spec] = {
     ),
     "rsi_overbought": Spec("rsi_overbought", depends=(_dep(Indicators.RSI, period="period"),)),
     "rsi_oversold": Spec("rsi_oversold", depends=(_dep(Indicators.RSI, period="period"),)),
+    "rsi_bullish_divergence": Spec(
+        "rsi_bullish_divergence",
+        ("close",),
+        depends=(_dep(Indicators.RSI, period="period"),),
+    ),
     "rsi_bearish_divergence": Spec(
         "rsi_bearish_divergence",
         ("close",),
