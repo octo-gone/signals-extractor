@@ -10,7 +10,7 @@ from numba import jit  # type: ignore
 
 @jit(nopython=True, cache=True)  # type: ignore
 def sma(values: np.ndarray, period: int) -> np.ndarray:
-    """Numba-optimized Simple Moving Average."""
+    """Simple Moving Average."""
     n = len(values)
     result = np.full(n, np.nan)
 
@@ -22,7 +22,7 @@ def sma(values: np.ndarray, period: int) -> np.ndarray:
 
 @jit(nopython=True, cache=True)  # type: ignore
 def ema(values: np.ndarray, period: int) -> np.ndarray:
-    """Numba-optimized Exponential Moving Average."""
+    """Exponential Moving Average."""
     n = values.shape[0]
     out = np.empty(n, dtype=np.float64)
     out[:] = np.nan
@@ -61,7 +61,7 @@ def ema(values: np.ndarray, period: int) -> np.ndarray:
 
 @jit(nopython=True, cache=True)  # type: ignore
 def rsi(close: np.ndarray, period: int = 14) -> np.ndarray:
-    """Numba-optimized Relative Strength Index."""
+    """Relative Strength Index."""
     n = len(close)
     rsi_result = np.full(n, np.nan)
 

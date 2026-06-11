@@ -39,7 +39,7 @@ def find_pivot_points(high: np.ndarray, low: np.ndarray, period: int = 5) -> tup
 
 @jit(nopython=True, cache=True)  # type: ignore
 def donchian_channel(high: np.ndarray, low: np.ndarray, period: int = 20) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Calculate Donchian Channel."""
+    """Donchian Channel."""
     n = len(high)
     upper = np.full(n, np.nan)
     lower = np.full(n, np.nan)
@@ -58,7 +58,7 @@ def donchian_channel(high: np.ndarray, low: np.ndarray, period: int = 20) -> tup
 
 @jit(nopython=True, cache=True)  # type: ignore
 def atr(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: int = 14) -> np.ndarray:
-    """Calculate Average True Range."""
+    """Average True Range."""
     n = len(high)
     atr_result = np.full(n, np.nan)
 

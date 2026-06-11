@@ -49,6 +49,7 @@ class Processor:
         self.signal_calcs: dict[str, SignalCalcFunc] = signal_calcs
 
     def dependencies(self, target: IndicatorType | SignalType) -> set[IndicatorType | SignalType]:
+        """Retrieve all indicator/signal dependencies, including dependencies' dependencies and so on."""
         out = []
 
         def get_req(obj: IndicatorType | SignalType) -> None:
@@ -67,6 +68,7 @@ class Processor:
     def _calc(
         self, obj: IndicatorType | SignalType
     ) -> Callable[[BatchContext, IndicatorType | SignalType], np.ndarray]:
+        """Retrieve calculator for indicator/signal."""
         if obj.type in self.indicator_calcs:
             return self.indicator_calcs[obj.type]  # type: ignore
         if obj.type in self.signal_calcs:
@@ -74,6 +76,7 @@ class Processor:
         raise KeyError(f"No calculator function found for: {obj.type}")
 
     def calculate(self, df: pd.DataFrame, verbose: bool = False) -> ProcessingResult:
+        """Calculate all signals in one batch for provided dataframe."""
         if verbose:
             print(f"Processing {len(df)} data points...")
 

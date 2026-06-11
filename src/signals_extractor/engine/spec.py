@@ -23,7 +23,7 @@ class Dependency:
 
 @dataclass(frozen=True)
 class Spec:
-    """Specificator for indicator/signal calculation."""
+    """Specification for indicator/signal data dependencies."""
 
     name: str
     inputs: tuple[str, ...] = ()

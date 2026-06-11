@@ -13,7 +13,7 @@ from numba import jit  # type: ignore
 def stochastic(
     high: np.ndarray, low: np.ndarray, close: np.ndarray, k_period: int = 14, d_period: int = 3
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Numba-optimized Stochastic Oscillator."""
+    """Stochastic Oscillator."""
     n = len(close)
     k = np.full(n, np.nan)
     d = np.full(n, np.nan)
