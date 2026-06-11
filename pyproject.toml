@@ -1,0 +1,75 @@
+[project]
+name = "signals-extractor"
+version = "0.1.0"
+description = "Configurable calculation of technical analysis signals from candlestick data"
+readme = "README.md"
+requires-python = ">=3.14"
+authors = [{ name = "octo-gone", email = "nklimin007@gmail.com" }]
+urls = { repository = "https://github.com/octo-gone/signals-extractor", homepage = "https://github.com/octo-gone/signals-extractor" }
+dependencies = [
+    "numba>=0.65.1",
+    "pandas>=3.0.3",
+]
+
+[dependency-groups]
+dev = [
+    "isort>=7.0.0",
+    "mypy>=1.18.2",
+    "pandas-stubs>=3.0.0.260204",
+    "pre-commit>=4.3.0",
+    "pylint>=4.0.2",
+    "ruff>=0.14.1",
+    "types-tqdm>=4.67.3.20260518",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# https://coverage.readthedocs.io/en/latest/config.html
+[tool.coverage.run]
+omit = ["tests/*"]
+command_line = "-m unittest discover -s tests/"
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:"]
+
+# https://mypy.readthedocs.io/en/stable/config_file.html
+[tool.mypy]
+python_version = "3.10"
+
+# https://pylint.readthedocs.io/en/stable/user_guide/configuration/all-options.html
+[tool.pylint.main]
+load-plugins = "pylint.extensions.docparams"
+init-hook = 'import sys; sys.path.append(".")'
+disable = [
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+    "C0116", # missing-function-docstring
+    "C0301", # line-too-long
+    "R0401", # cyclic-import
+    "R0801", # duplicate-code
+    "R0901", # too-many-ancestors
+    "R0903", # too-few-public-methods
+    "R0911", # too-many-return-statements
+    "R0912", # too-many-branches
+    "R0913", # too-many-arguments
+    "R0914", # too-many-locals
+    "R0915", # too-many-statements
+    "R0917", # too-many-positional-arguments
+    "R1702", # too-many-nested-blocks
+    "W0511", # fixme
+    "W0718", # broad-exception-caught
+]
+ignore-paths = "^tests/.*$"
+[tool.pylint.format]
+max-line-length = 120
+
+# https://docs.astral.sh/ruff/settings
+[tool.ruff]
+line-length = 120
+
+# https://github.com/PyCQA/isort/blob/main/docs/configuration/options.md
+[tool.isort]
+line_length = 120
+multi_line_output = 3
+include_trailing_comma = true
