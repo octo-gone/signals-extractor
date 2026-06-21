@@ -103,13 +103,13 @@ class Signals:  # pylint: disable=too-many-public-methods,invalid-name
     @staticmethod
     @signal_factory("macd_zero_cross_bullish")
     def MACD_ZERO_CROSS_BULLISH(short: int, long: int) -> "SignalType":
-        "MACD Zero Cross Bullish signal factory. MACD line crosses signal line from bottom."
+        "MACD Zero Cross Bullish signal factory. MACD line crosses zero from bottom."
         return SignalType("macd_zero_cross_bullish", short=short, long=long)
 
     @staticmethod
     @signal_factory("macd_zero_cross_bearish")
     def MACD_ZERO_CROSS_BEARISH(short: int, long: int) -> "SignalType":
-        "MACD Zero Cross Bearish signal factory. MACD line crosses signal line from top."
+        "MACD Zero Cross Bearish signal factory. MACD line crosses zero from top."
         return SignalType("macd_zero_cross_bearish", short=short, long=long)
 
     @staticmethod
