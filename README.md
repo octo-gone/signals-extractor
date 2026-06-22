@@ -156,7 +156,9 @@ result = processor.calculate(df)
 `IndicatorsCollection` provides presets like `SMA_10`, `RSI_14`, `MACD_LINE`.
 `SignalsCollection` provides presets like `PRICE_ABOVE_SMA_10`, `RSI_OVERBOUGHT_14`.
 
-## Customizing with your own specs and calculators
+## Customizing
+
+### ... with your own specs and calculators
 
 The current processor accepts custom `indicator_specs`, `signal_specs`, `indicator_calcs`, and `signal_calcs` dictionaries. That lets you plug in your own factories and batch logic without changing the core engine.
 
@@ -254,6 +256,65 @@ print(processor.dependencies(PRICE_ABOVE_VWAP(2)))
 ```
 
 The same pattern works for any custom indicator/signal combination: register the type with `indicator_factory` / `signal_factory`, add it to the spec dictionaries, and provide the calculator functions you want the processor to use.
+
+### ... with dynamic dependencies
+
+Use `ParamDependency` when a dependency is not derived from parameters but is represented by a predefined indicator/signal. Instead of resolving the dependency through a factory and parameter mapping, `ParamDependency` uses the parameter value directly as the dependency.
+
+```python
+...
+from signals_extractor import ParamDependency
+
+@signal_factory("trend_reverse")
+def TREND_REVERSE(
+    signal: SignalType,
+    trend_indicator: IndicatorType,
+    direction: Literal["bullish", "bearish", "all"],
+) -> SignalType:
+    return SignalType(
+        "trend_reverse",
+        signal=signal,
+        trend_indicator=trend_indicator,
+        direction=direction,
+    )
+
+def _derive_trend_reverse(
+    ctx: BatchContext,
+    ind: IndicatorType,
+):
+    direction = ind.params["direction"]
+    signal = ctx.get(ind.params["signal"])
+    trend = ctx.get(ind.params["trend_indicator"])
+    out = np.zeros_like(trend, dtype=float)
+    mask = signal == 1.0
+    if direction == "bullish":
+        mask &= trend < 0
+    elif direction == "bearish":
+        mask &= trend > 0
+    out[mask] = -trend[mask]
+    return ctx.set(ind, out)
+
+S_CALCS = SIGNALS_CALCS | {
+    ...
+    "trend_reverse": _derive_trend_reverse,
+}
+
+S_SPECS = SIGNALS_SPECS | {
+    ...
+    "trend_reverse": Spec(
+        "trend_reverse",
+        depends=(
+            ParamDependency("signal"),
+            ParamDependency("trend_indicator"),
+        ),
+    ),
+}
+
+trend_reversal_signal = TREND_REVERSE(
+    # where does darth vader get his shoes from?
+    DARTH_MAUL(), TREND_SCORE(8, 3), direction="bullish"
+)
+```
 
 ## Development
 

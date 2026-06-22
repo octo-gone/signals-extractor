@@ -1,7 +1,10 @@
 # pylint: disable=invalid-name
 from functools import total_ordering, wraps
 from types import MappingProxyType
-from typing import Any, Callable, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
+
+if TYPE_CHECKING:
+    from signals_extractor.indicators._types import IndicatorType
 
 P = ParamSpec("P")
 R = TypeVar("R", bound="SignalType")
@@ -13,7 +16,7 @@ class SignalType:
 
     __slots__ = ["type", "params"]
 
-    def __init__(self, type_: str, **params: str | int | float):
+    def __init__(self, type_: str, **params: "str | int | float | IndicatorType | SignalType"):
         self.type = type_
         self.params = MappingProxyType(params)
 

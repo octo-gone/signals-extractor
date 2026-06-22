@@ -13,7 +13,7 @@ class IndicatorType:
 
     __slots__ = ["type", "params"]
 
-    def __init__(self, type_: str, **params: str | int | float):
+    def __init__(self, type_: str, **params: "str | int | float | IndicatorType"):
         self.type = type_
         self.params = MappingProxyType(params)
 

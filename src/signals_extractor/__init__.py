@@ -1,4 +1,13 @@
-from signals_extractor.engine import BatchContext, Dependency, ProcessingResult, Processor, Result, Spec, _dep
+from signals_extractor.engine import (
+    BatchContext,
+    Dependency,
+    ParamDependency,
+    ProcessingResult,
+    Processor,
+    Result,
+    Spec,
+    _dep,
+)
 from signals_extractor.indicators import Indicators, IndicatorsCollection, IndicatorType, indicator_factory
 from signals_extractor.signals import Signals, SignalsCollection, SignalType, signal_factory
 
@@ -14,6 +23,7 @@ __all__ = [
     "signal_factory",
     "BatchContext",
     "Dependency",
+    "ParamDependency",
     "_dep",
     "ProcessingResult",
     "Processor",
