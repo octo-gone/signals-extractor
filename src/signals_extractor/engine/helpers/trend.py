@@ -10,59 +10,62 @@ from numba import jit  # type: ignore
 
 @jit(nopython=True, cache=True)  # type: ignore
 def adx(high: np.ndarray, low: np.ndarray, close: np.ndarray, period: int = 14) -> np.ndarray:
-    """Average Directional Index."""
+    """Average Directional Index (Wilder's method)."""
     n = len(high)
     adx_result = np.full(n, np.nan)
 
-    if n < period + 1:
+    if n < 2 * period:
         return adx_result
 
-    # Calculate True Range
     tr = np.zeros(n)
-    for i in range(1, n):
-        tr[i] = max(high[i] - low[i], abs(high[i] - close[i - 1]), abs(low[i] - close[i - 1]))
-
-    # Calculate Directional Movement
     dm_plus = np.zeros(n)
     dm_minus = np.zeros(n)
 
     for i in range(1, n):
-        move_up = high[i] - high[i - 1]
-        move_down = low[i - 1] - low[i]
+        up_move = high[i] - high[i - 1]
+        down_move = low[i - 1] - low[i]
 
-        if move_up > move_down and move_up > 0:
-            dm_plus[i] = move_up
-        if move_down > move_up and move_down > 0:
-            dm_minus[i] = move_down
+        tr[i] = max(
+            high[i] - low[i],
+            abs(high[i] - close[i - 1]),
+            abs(low[i] - close[i - 1]),
+        )
 
-    # Calculate smoothed averages
-    atr = np.zeros(n)
-    di_plus = np.zeros(n)
-    di_minus = np.zeros(n)
+        if up_move > down_move and up_move > 0:
+            dm_plus[i] = up_move
 
-    # Initialize first values
-    atr[period] = np.mean(tr[1 : period + 1])
-    di_plus[period] = 100 * np.mean(dm_plus[1 : period + 1]) / atr[period]
-    di_minus[period] = 100 * np.mean(dm_minus[1 : period + 1]) / atr[period]
+        if down_move > up_move and down_move > 0:
+            dm_minus[i] = down_move
 
-    # Calculate subsequent values
-    for i in range(period + 1, n):
-        atr[i] = (atr[i - 1] * (period - 1) + tr[i]) / period
-        di_plus[i] = 100 * (di_plus[i - 1] * (period - 1) + dm_plus[i]) / (period * atr[i])
-        di_minus[i] = 100 * (di_minus[i - 1] * (period - 1) + dm_minus[i]) / (period * atr[i])
+    atr = np.sum(tr[1 : period + 1])
+    dm_plus_sm = np.sum(dm_plus[1 : period + 1])
+    dm_minus_sm = np.sum(dm_minus[1 : period + 1])
 
-        # Calculate DX and ADX
-        dx = 100 * abs(di_plus[i] - di_minus[i]) / (di_plus[i] + di_minus[i])
-        if i >= 2 * period - 1:
-            if i == 2 * period - 1:
-                # Calculate initial ADX as mean of first DX values
-                dx_sum = 0.0
-                for j in range(period, i + 1):
-                    dx_val = 100 * abs(di_plus[j] - di_minus[j]) / (di_plus[j] + di_minus[j])
-                    dx_sum += dx_val
-                adx_result[i] = dx_sum / period
-            else:
-                adx_result[i] = (adx_result[i - 1] * (period - 1) + dx) / period
+    dx = np.full(n, np.nan)
+
+    for i in range(period, n):
+        if i > period:
+            atr = atr - atr / period + tr[i]
+            dm_plus_sm = dm_plus_sm - dm_plus_sm / period + dm_plus[i]
+            dm_minus_sm = dm_minus_sm - dm_minus_sm / period + dm_minus[i]
+
+        if atr == 0.0:
+            continue
+
+        di_plus = 100.0 * dm_plus_sm / atr
+        di_minus = 100.0 * dm_minus_sm / atr
+
+        denom = di_plus + di_minus
+        if denom == 0.0:
+            dx[i] = 0.0
+        else:
+            dx[i] = 100.0 * abs(di_plus - di_minus) / denom
+
+    adx_start = 2 * period - 1
+    adx_result[adx_start] = np.mean(dx[period : adx_start + 1])
+
+    for i in range(adx_start + 1, n):
+        adx_result[i] = ((adx_result[i - 1] * (period - 1)) + dx[i]) / period
 
     return adx_result
 
